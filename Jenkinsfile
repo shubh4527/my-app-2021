@@ -10,13 +10,13 @@ pipeline{
         sh "mvn clean package"
       }
     }
-
     stage('Upload To tomcat'){
+      steps{
          sshagent(['tomcatec2']) {
         sh 'scp -o StrictHostKeyChecking=no  target/.war ec2-user@10.0.1.66:/optt/tomcat/apache-tomcat-8.5.68/webapps/'
     }
+      }
     }
-    
     stage('dev-deploy'){
       when {
         branch "develop"
