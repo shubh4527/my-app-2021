@@ -11,24 +11,10 @@ pipeline{
       }
     }
 
-    stage('Upload To Nexus'){
-      when {
-        branch "develop"
-      }
-      steps{
-        script{
-          def pom = readMavenPom file: 'pom.xml'
-          def repository = pom.version.endsWith("SNAPSHOT") ? 'javahome-snapshot' : 'javahome-release'
-          nexusArtifactUploader artifacts: 
-          [[artifactId: 'myweb', classifier: '', file: "target/myweb-${pom.version}.war", type: 'war']], 
-          credentialsId: 'nexus3', 
-          groupId: 'in.javahome', 
-          nexusUrl: '172.31.11.107:8081', 
-          nexusVersion: 'nexus3', protocol: 'http', 
-          repository: repository, 
-          version: pom.version
-        }
-      }
+    stage('Upload To tomcat'){
+         sshagent(['tomcatec2']) {
+        sh 'scp -o StrictHostKeyChecking=no  target/.war ec2-user@10.0.1.66:/optt/tomcat/apache-tomcat-8.5.68/webapps/'
+    }
     }
     
     stage('dev-deploy'){
